@@ -82,6 +82,10 @@ ul.clean li { margin: 0.25rem 0; }
 
 footer.site-footer { border-top: 1px solid var(--border); padding: 1rem 0; margin-top: 2rem; color: var(--muted); }
 
+/* Skip to content accessibility */
+.sr-only { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+.sr-only:focus { left: 1rem; top: 1rem; width: auto; height: auto; padding: 0.5rem 0.75rem; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.08); z-index: 1000; }
+
 /* Blog */
 .post-list { display: grid; gap: 1rem; }
 .post-card { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; background: var(--card); }

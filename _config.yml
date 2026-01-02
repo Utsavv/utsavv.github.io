@@ -23,17 +23,22 @@ defaults:
 # Site-wide variables (edit as needed)
 author:
   name: "Utsav Verma"
-  email: "hello@utsavverma.dev"
+  email: "utsav.verma@outlook.in"
   location: "India"
   role: "Senior Database Architect"
   summary: "Architecting reliable data platforms, SQL Server performance, and AI-driven data systems."
 
 social:
-  linkedin: "https://www.linkedin.com/in/utsav-verma"
+  linkedin: "https://www.linkedin.com/in/utsavverma"
   twitter: "https://x.com/utsavverma"
-  github: "https://github.com/utsavverma"
+  github: "https://github.com/utsavv"
+  stackoverflow: "https://stackoverflow.com/users/2941322/uvdata"
 
 # Exclude build artifacts
 exclude:
   - README.md
   - readme.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+  - node_modules/
