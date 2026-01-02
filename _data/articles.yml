@@ -1,0 +1,12 @@
+# Articles data: extend easily by adding new items
+- title: "Index Maintenance Strategies in SQL Server"
+  platform: "SQLServerCentral"
+  url: "https://www.sqlservercentral.com/articles/index-maintenance-strategies"
+
+- title: "Designing Scalable Data Platforms on Azure"
+  platform: "Medium"
+  url: "https://medium.com/@utsavverma/designing-scalable-data-platforms-on-azure"
+
+- title: "Practical Guide to Query Performance Tuning"
+  platform: "Personal Blog"
+  url: "https://utsavverma.github.io/blog/2026/01/02/welcome/"

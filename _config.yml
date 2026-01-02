@@ -1,0 +1,39 @@
+title: "Utsav Verma"
+description: "Senior Database Architect — SQL Server, Data Platforms, AI"
+url: "https://utsavverma.github.io" # Update if deploying under a custom domain
+baseurl: "" # For user/organization pages, keep empty
+
+markdown: kramdown
+kramdown:
+  input: GFM
+highlighter: rouge
+
+permalink: /blog/:year/:month/:day/:title/
+
+# Defaults for posts
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "Utsav Verma"
+      comments: false
+
+# Site-wide variables (edit as needed)
+author:
+  name: "Utsav Verma"
+  email: "hello@utsavverma.dev"
+  location: "India"
+  role: "Senior Database Architect"
+  summary: "Architecting reliable data platforms, SQL Server performance, and AI-driven data systems."
+
+social:
+  linkedin: "https://www.linkedin.com/in/utsav-verma"
+  twitter: "https://x.com/utsavverma"
+  github: "https://github.com/utsavverma"
+
+# Exclude build artifacts
+exclude:
+  - README.md
+  - readme.md
