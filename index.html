@@ -66,8 +66,20 @@ title: Home
 <section class="section" id="blog">
   <h2>Blog</h2>
   <p>Notes on databases, performance, architecture, and engineering leadership.</p>
+  {% assign latest_post = site.posts.first %}
+  {% if latest_post %}
+  {% assign latest_href = latest_post.external_url | default: latest_post.url %}
+  <article class="card featured">
+    <div class="meta">Latest post</div>
+    <h3>
+      <a href="{{ latest_href }}"{% if latest_post.external_url %} target="_blank" rel="noopener"{% endif %}>{{ latest_post.title }}</a>
+    </h3>
+    <p>{{ latest_post.excerpt | strip_html | truncate: 200 }}</p>
+    <p><a class="button" href="{{ latest_href }}"{% if latest_post.external_url %} target="_blank" rel="noopener"{% endif %}>Read the latest post</a></p>
+  </article>
+  {% endif %}
   <div class="grid cards">
-    {% for post in site.posts %}
+    {% for post in site.posts offset:1 %}
       {% assign href = post.external_url | default: post.url %}
       <article class="card">
         <h3>
