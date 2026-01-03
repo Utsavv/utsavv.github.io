@@ -1,6 +1,10 @@
 source "https://rubygems.org"
 
-gem "github-pages", group: :jekyll_plugins
+# Local preview using modern Jekyll compatible with Ruby 4
+gem "jekyll", "~> 4.4"
+gem "csv"
+gem "bigdecimal"
+gem "logger"
 gem "webrick", "~> 1.8"
 # Windows time zone data
 gem "tzinfo-data", platforms: [:mingw, :x64_mingw, :mswin]
