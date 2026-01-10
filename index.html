@@ -19,30 +19,8 @@ title: Home
   <h2>CV Overview</h2>
   <p>Over a decade architecting data solutions: performance tuning, migrations, high availability, and end-to-end data platforms in the cloud.</p>
   <div class="cta">
-    <a class="button primary" href="https://1drv.ms/w/c/e7ee95718edb5e82/IQCCXtuOcZXuIIDn0jkAAAAAAV5g4qXEYIoaoTEOrYCkXyc?e=RiItJK" target="_blank" rel="noopener">View Detailed CV</a>
-    <a class="button" href="{{ "/assets/cv/Utsav_Verma_CV_2026.pdf" | relative_url }}" target="_blank" rel="noopener">Download CV (PDF)</a>
+    <a class="button primary" href="https://1drv.ms/w/c/e7ee95718edb5e82/IQCCXtuOcZXuIIDn0jkAAAAAAV5g4qXEYIoaoTEOrYCkXyc?e=RiItJK" target="_blank" rel="noopener">View CV</a>
   </div>
-</section>
-
-<!-- Published Articles -->
-<section class="section" id="articles">
-  <h2>Published Articles</h2>
-  <div class="grid cards">
-    {% for article in site.data.articles %}
-      <article class="card">
-        <h3>{{ article.title }}</h3>
-        <div class="meta">{{ article.platform }}</div>
-        <p><a class="button" href="{{ article.url }}" target="_blank" rel="noopener">Read on {{ article.platform }}</a></p>
-      </article>
-    {% endfor %}
-  </div>
-</section>
-
-<!-- Blog Section -->
-<section class="section" id="blog">
-  <h2>Blog</h2>
-  <p>Notes on databases, performance, architecture, and engineering leadership.</p>
-  <p><a class="button primary" href="/blog/">Go to Blog</a></p>
 </section>
 
 <!-- Social Links Section -->
@@ -68,4 +46,50 @@ title: Home
       <span>Stack Overflow</span>
     </a>
   </div>
+</section>
+
+<!-- Published Articles -->
+<section class="section" id="articles">
+  <h2>Published Articles</h2>
+  <div class="grid cards">
+    {% for article in site.data.articles %}
+      <article class="card">
+        <h3>{{ article.title }}</h3>
+        <div class="meta">{{ article.platform }}</div>
+        <p><a class="button" href="{{ article.url }}" target="_blank" rel="noopener">Read on {{ article.platform }}</a></p>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Blog Section -->
+<section class="section" id="blog">
+  <h2>Blog</h2>
+  <p>Notes on databases, performance, architecture, and engineering leadership.</p>
+  {% assign latest_post = site.posts.first %}
+  {% if latest_post %}
+  {% assign latest_href = latest_post.external_url | default: latest_post.url %}
+  <article class="card featured">
+    <div class="meta">Latest post</div>
+    <h3>
+      <a href="{{ latest_href }}"{% if latest_post.external_url %} target="_blank" rel="noopener"{% endif %}>{{ latest_post.title }}</a>
+    </h3>
+    <p>{{ latest_post.excerpt | strip_html | truncate: 200 }}</p>
+    <p><a class="button" href="{{ latest_href }}"{% if latest_post.external_url %} target="_blank" rel="noopener"{% endif %}>Read the latest post</a></p>
+  </article>
+  {% endif %}
+  <div class="grid cards">
+    {% for post in site.posts offset:1 %}
+      {% assign href = post.external_url | default: post.url %}
+      <article class="card">
+        <h3>
+          <a href="{{ href }}"{% if post.external_url %} target="_blank" rel="noopener"{% endif %}>{{ post.title }}</a>
+        </h3>
+        <div class="meta">{{ post.date | date: "%B %d, %Y" }}</div>
+        <p>{{ post.excerpt | strip_html | truncate: 160 }}</p>
+        <p><a class="button" href="{{ href }}"{% if post.external_url %} target="_blank" rel="noopener"{% endif %}>Read on Blog</a></p>
+      </article>
+    {% endfor %}
+  </div>
+  <p><a class="button primary" href="/blog/">Browse all posts</a></p>
 </section>
