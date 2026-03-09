@@ -2,6 +2,8 @@ title: "Utsav Verma"
 description: "Senior Database Architect — SQL Server, Data Platforms, AI"
 url: "https://utsavverma.github.io" # Update if deploying under a custom domain
 baseurl: "" # For user/organization pages, keep empty
+lang: "en"
+timezone: "Asia/Kolkata"
 
 markdown: kramdown
 kramdown:
@@ -19,6 +21,7 @@ defaults:
       layout: "post"
       author: "Utsav Verma"
       comments: false
+      seo_type: "article"
 
 # Site-wide variables (edit as needed)
 author:
@@ -27,6 +30,10 @@ author:
   location: "India"
   role: "Senior Database Architect"
   summary: "Architecting reliable data platforms, SQL Server performance, and AI-driven data systems."
+
+# Optional default social preview image for Open Graph/Twitter cards.
+# Keep empty unless a valid image exists under /assets/images.
+social_image: ""
 
 social:
   linkedin: "https://www.linkedin.com/in/utsavverma"

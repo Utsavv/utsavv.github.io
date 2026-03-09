@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Home
+description: "Utsav Verma's official site: SQL Server architecture, data platform engineering, AI-focused articles, and CV."
 ---
 
 <!-- Hero / Header Section -->
@@ -8,9 +9,9 @@ title: Home
   <h1>Utsav Verma</h1>
   <p class="subtitle">Senior Database Architect focusing on SQL Server performance, scalable data platforms, and applied AI in data engineering.</p>
   <div class="cta">
-    <a class="button primary" href="https://1drv.ms/w/c/e7ee95718edb5e82/IQCCXtuOcZXuIIDn0jkAAAAAAV5g4qXEYIoaoTEOrYCkXyc?e=RiItJK" target="_blank" rel="noopener">View CV</a>
+    <a class="button primary" href="{{ '/cv/' | relative_url }}">View CV</a>
     <a class="button" href="#articles">Read Articles</a>
-    <a class="button" href="/blog/">Blog</a>
+    <a class="button" href="{{ '/blog/' | relative_url }}">Blog</a>
   </div>
 </section>
 
@@ -19,7 +20,7 @@ title: Home
   <h2>CV Overview</h2>
   <p>Over a decade architecting data solutions: performance tuning, migrations, high availability, and end-to-end data platforms in the cloud.</p>
   <div class="cta">
-    <a class="button primary" href="https://1drv.ms/w/c/e7ee95718edb5e82/IQCCXtuOcZXuIIDn0jkAAAAAAV5g4qXEYIoaoTEOrYCkXyc?e=RiItJK" target="_blank" rel="noopener">View CV</a>
+    <a class="button primary" href="{{ '/cv/' | relative_url }}">View CV</a>
   </div>
 </section>
 
@@ -91,5 +92,5 @@ title: Home
       </article>
     {% endfor %}
   </div>
-  <p><a class="button primary" href="/blog/">Browse all posts</a></p>
+  <p><a class="button primary" href="{{ '/blog/' | relative_url }}">Browse all posts</a></p>
 </section>
