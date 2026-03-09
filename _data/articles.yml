@@ -1,4 +1,8 @@
 # Articles data: extend easily by adding new items
+- title: "Foreign Keys: Foes or Friend?"
+  platform: "SQLServerCentral"
+  url: "https://www.sqlservercentral.com/articles/foreign-keys-foes-or-friend"
+
 - title: "Think LSNs Are Unique? Think Again — Preventing Data Loss in CDC ETL"
   platform: "SQLServerCentral"
   url: "https://www.sqlservercentral.com/articles/think-lsns-are-unique-think-again-preventing-data-loss-in-cdc-etl"
