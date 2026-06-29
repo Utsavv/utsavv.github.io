@@ -18,7 +18,7 @@ lang: en
 timezone: "Asia/Kolkata"
 icon: 🗄️
 
-url: https://utsavverma.github.io
+url: https://utsavverma.com
 baseurl: ""
 last_updated: false
 back_to_top: true
@@ -56,7 +56,7 @@ max_width: 800px
 
 serve_og_meta: true
 serve_schema_org: true
-og_image: https://utsavverma.github.io/assets/img/og-image.png
+og_image: https://utsavverma.com/assets/img/og-image.png
 
 # -----------------------------------------------------------------------------
 # Social integration
@@ -77,7 +77,7 @@ contact_note: >
 # Google Analytics 4: replace the placeholder with your real Measurement ID
 # (Admin → Data Streams → your web stream → "Measurement ID", looks like G-XXXXXXXXXX),
 # then keep enable_google_analytics: true. Until then it stays a no-op placeholder.
-google_analytics: G-XXXXXXXXXX
+google_analytics: G-MCC6GR69T3
 enable_google_analytics: true
 
 # Search Console / Bing verification: paste the content token from the
