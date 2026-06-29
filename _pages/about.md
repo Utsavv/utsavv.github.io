@@ -2,31 +2,32 @@
 layout: about
 title: about
 permalink: /
-subtitle: Senior Database Architect — SQL Server, Data Platforms, AI
+subtitle: >
+  Senior Database Architect &amp; Applied AI Innovator · India ·
+  <a href="mailto:utsav.verma@outlook.in">utsav.verma@outlook.in</a>
 
 profile:
   align: right
   image:
   image_circular: false
-  more_info: >
-    <p>India</p>
-    <p><a href="mailto:utsav.verma@outlook.in">utsav.verma@outlook.in</a></p>
 
 news: false
 selected_papers: false
 social: true
 ---
 
-Over a decade architecting data solutions across SQL Server performance tuning, high-availability platforms, cloud migrations, and applied AI in data engineering.
+21+ years architecting data solutions across SQL Server performance tuning, high-availability platforms, cloud migrations, and applied AI in data engineering.
 
-My work spans designing resilient data platforms, building end-to-end ETL/CDC pipelines, and implementing vector search and AI-driven querying on top of relational databases. I write about what I learn from production systems — the edge cases, failure modes, and patterns that actually matter.
+My work spans designing resilient data platforms, building end-to-end ETL/CDC pipelines, implementing vector search, and applying LLMs to real engineering problems — from AI-generated migration automation to offline rule engines and audio-visual EGM help systems. I have 2 patents filed for AI framework implementations.
 
 **Areas of expertise:**
 
-- SQL Server performance tuning and index strategy
-- Change Data Capture (CDC) and real-time data pipelines
-- High availability: Always On, clustering, replication
-- Vector databases and AI integration (FAISS, Azure SQL Vector)
-- Cloud data platforms: Azure SQL, Azure Data Factory, Synapse
+- SQL Server 2005–2022, Azure SQL, AWS RDS performance tuning and architecture
+- Change Data Capture (CDC), SSIS, real-time data pipelines
+- High availability: Always On AG, Failover Clustering, replication
+- AI & LLMs: RAG, prompt engineering, Codex CLI, Ollama, GitHub Copilot
+- Vector databases, FAISS, Azure SQL Vector datatype
+- Data warehousing, dimensional modeling, MicroStrategy
+- DataOps: automated build/deploy pipelines (MakeDb framework)
 
 I regularly publish technical articles on [SQLServerCentral](https://www.sqlservercentral.com) and write here about database architecture, AI in data engineering, and engineering leadership.
