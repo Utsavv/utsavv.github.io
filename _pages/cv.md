@@ -2,6 +2,9 @@
 layout: page
 title: cv
 permalink: /cv/
+description: >
+  CV of Utsav Verma — AI Architect & Senior Database Architect. 21+ years in
+  SQL Server, data platforms, DataOps, and applied AI. 2 AI patents filed.
 nav: true
 nav_order: 3
 ---

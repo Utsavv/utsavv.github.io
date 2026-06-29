@@ -8,11 +8,12 @@ middle_name:
 last_name: Verma
 email: utsav.verma@outlook.in
 description: >
-  Senior Database Architect — SQL Server, Data Platforms, AI
+  Utsav Verma — AI Architect & Senior Database Architect with 21+ years building
+  data platforms, applied AI, LLM/RAG systems, and SQL Server at scale. 2 AI patents filed.
 footer_text: >
   Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
   Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>.
-keywords: sql-server, database, data-architecture, ai, performance-tuning
+keywords: Utsav Verma, AI Architect, AI Solutions Architect, Database Architect, SQL Server, data architecture, applied AI, LLM, RAG, vector search, data platforms, DataOps, performance tuning
 lang: en
 timezone: "Asia/Kolkata"
 icon: 🗄️
@@ -55,7 +56,7 @@ max_width: 800px
 
 serve_og_meta: true
 serve_schema_org: true
-og_image:
+og_image: https://utsavverma.github.io/assets/img/og-image.png
 
 # -----------------------------------------------------------------------------
 # Social integration
@@ -73,9 +74,18 @@ contact_note: >
 # Analytics and search engine verification
 # -----------------------------------------------------------------------------
 
-google_analytics:
+# Google Analytics 4: replace the placeholder with your real Measurement ID
+# (Admin → Data Streams → your web stream → "Measurement ID", looks like G-XXXXXXXXXX),
+# then keep enable_google_analytics: true. Until then it stays a no-op placeholder.
+google_analytics: G-XXXXXXXXXX
+enable_google_analytics: true
+
+# Search Console / Bing verification: paste the content token from the
+# "HTML tag" verification method, then flip the matching enable_* flag to true.
 google_site_verification:
+enable_google_verification: false
 bing_site_verification:
+enable_bing_verification: false
 
 # -----------------------------------------------------------------------------
 # Blog

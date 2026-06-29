@@ -2,8 +2,11 @@
 layout: about
 title: about
 permalink: /
+description: >
+  Utsav Verma — AI Architect and Senior Database Architect with 21+ years
+  building data platforms, applied AI / LLM systems, and SQL Server at scale.
 subtitle: >
-  Senior Database Architect &amp; Applied AI Innovator · India ·
+  AI Architect &amp; Senior Database Architect · 21+ years · 2 AI patents filed · India ·
   <a href="mailto:utsav.verma@outlook.in">utsav.verma@outlook.in</a>
 
 profile:
@@ -16,7 +19,7 @@ selected_papers: false
 social: true
 ---
 
-21+ years architecting data solutions across SQL Server performance tuning, high-availability platforms, cloud migrations, and applied AI in data engineering.
+I'm **Utsav Verma**, an **AI Architect and Senior Database Architect** with 21+ years architecting data solutions — spanning applied AI in data engineering, SQL Server performance tuning, high-availability platforms, and cloud migrations.
 
 My work spans designing resilient data platforms, building end-to-end ETL/CDC pipelines, implementing vector search, and applying LLMs to real engineering problems — from AI-generated migration automation to offline rule engines and audio-visual EGM help systems. I have 2 patents filed for AI framework implementations.
 

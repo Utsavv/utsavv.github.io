@@ -1,0 +1,48 @@
+{% comment %}
+  Rich Person + ProfilePage structured data for the home/about page.
+  This is the primary signal Google uses to associate the name "Utsav Verma"
+  with this site (Knowledge Graph + name-query ranking). Keep `knowsAbout`,
+  `jobTitle`, and `sameAs` aligned with the CV and about copy.
+{% endcomment %}
+{% capture person_name %}{{ site.first_name }}{% if site.middle_name %} {{ site.middle_name }}{% endif %} {{ site.last_name }}{% endcapture %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "mainEntity": {
+    "@type": "Person",
+    "@id": "{{ site.url }}/#person",
+    "name": "{{ person_name | strip }}",
+    "url": "{{ site.url }}/",
+    "image": "{{ site.og_image }}",
+    "jobTitle": ["AI Architect", "Senior Database Architect"],
+    "description": "AI Architect and Senior Database Architect with 21+ years building data platforms, applied AI / LLM systems, and SQL Server at scale. 2 AI patents filed.",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Aristocrat Technology India"
+    },
+    "knowsAbout": [
+      "AI Architecture",
+      "Applied Artificial Intelligence",
+      "Large Language Models (LLM)",
+      "Retrieval-Augmented Generation (RAG)",
+      "Vector Search",
+      "SQL Server",
+      "Database Architecture",
+      "Azure SQL",
+      "AWS RDS",
+      "Data Warehousing",
+      "Change Data Capture (CDC)",
+      "High Availability",
+      "DataOps",
+      "Performance Tuning"
+    ],
+    "sameAs": [
+      {% if site.github_username %}"https://github.com/{{ site.github_username }}",{% endif %}
+      {% if site.x_username %}"https://twitter.com/{{ site.x_username }}",{% endif %}
+      {% if site.stackoverflow_id %}"https://stackoverflow.com/users/{{ site.stackoverflow_id }}",{% endif %}
+      {% if site.linkedin_username %}"https://www.linkedin.com/in/{{ site.linkedin_username }}"{% endif %}
+    ]
+  }
+}
+</script>
