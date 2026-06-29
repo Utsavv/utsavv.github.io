@@ -1,0 +1,855 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://utsavverma.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://utsavverma.github.io/" rel="alternate" type="text/html" hreflang="en" /><updated>2026-06-29T14:57:00+05:30</updated><id>https://utsavverma.github.io/feed.xml</id><title type="html">blank</title><subtitle>Senior Database Architect — SQL Server, Data Platforms, AI
+</subtitle><entry><title type="html">New mssql-python Driver Claiming Faster BCP? A Fact Check</title><link href="https://utsavverma.github.io/blog/2026/new-mssql-python-driver-claiming-faster-bcp-a-fact-check/" rel="alternate" type="text/html" title="New mssql-python Driver Claiming Faster BCP? A Fact Check" /><published>2026-04-14T00:00:00+05:30</published><updated>2026-04-14T00:00:00+05:30</updated><id>https://utsavverma.github.io/blog/2026/new-mssql-python-driver-claiming-faster-bcp-a-fact-check</id><content type="html" xml:base="https://utsavverma.github.io/blog/2026/new-mssql-python-driver-claiming-faster-bcp-a-fact-check/"><![CDATA[<p>My project relies heavily on bulk loads, often close to a million rows at a time. So when the new <code class="language-plaintext highlighter-rouge">mssql-python</code> driver introduced a native <code class="language-plaintext highlighter-rouge">bulkcopy()</code> API, I wanted to test the claim of near-native performance against classic <code class="language-plaintext highlighter-rouge">bcp</code>.</p>
+
+<p>I ran a controlled benchmark with one goal: compare throughput and resource usage under identical conditions.</p>
+
+<h2 id="test-scenario">Test Scenario</h2>
+
+<p>The benchmark loads 1,000,000 rows from CSV into this table:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">dbo</span><span class="p">.</span><span class="n">BenchmarkData</span>
+<span class="p">(</span>
+    <span class="n">Id</span> <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+    <span class="n">Name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">Amount</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">CreatedAt</span> <span class="nb">DATETIME</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<p>Methods compared:</p>
+
+<ol>
+  <li>Native <code class="language-plaintext highlighter-rouge">bcp</code> utility</li>
+  <li><code class="language-plaintext highlighter-rouge">mssql-python</code> using <code class="language-plaintext highlighter-rouge">cursor.bulkcopy()</code></li>
+</ol>
+
+<p>Controls applied to both:</p>
+
+<ul>
+  <li>Same CSV input file</li>
+  <li><code class="language-plaintext highlighter-rouge">TABLOCK</code></li>
+  <li>Batch size of <code class="language-plaintext highlighter-rouge">50,000</code></li>
+  <li>Same machine and SQL Server instance</li>
+  <li>Each test run three times; median reported</li>
+</ul>
+
+<h2 id="tldr-results">TL;DR Results</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Rows</th>
+      <th>Driver</th>
+      <th style="text-align: right">Time (s)</th>
+      <th style="text-align: right">Rows/sec</th>
+      <th style="text-align: right">CPU %</th>
+      <th style="text-align: right">Peak Mem (MB)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1,000,000</td>
+      <td><code class="language-plaintext highlighter-rouge">mssql-python</code></td>
+      <td style="text-align: right">16.01</td>
+      <td style="text-align: right">62,460</td>
+      <td style="text-align: right">92.0</td>
+      <td style="text-align: right">418.9</td>
+    </tr>
+    <tr>
+      <td>1,000,000</td>
+      <td><code class="language-plaintext highlighter-rouge">bcp</code></td>
+      <td style="text-align: right">10.38</td>
+      <td style="text-align: right">96,342</td>
+      <td style="text-align: right">1.2</td>
+      <td style="text-align: right">132.3</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Winner: <code class="language-plaintext highlighter-rouge">bcp</code> (about 35% faster).</p>
+
+<p>Quick arithmetic check:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">1,000,000 / 16.01 ~= 62,460 rows/sec</code></li>
+  <li><code class="language-plaintext highlighter-rouge">1,000,000 / 10.38 ~= 96,342 rows/sec</code></li>
+</ul>
+
+<h2 id="what-the-numbers-mean">What The Numbers Mean</h2>
+
+<h3 id="1-throughput">1) Throughput</h3>
+
+<p><code class="language-plaintext highlighter-rouge">bcp</code> processed around <code class="language-plaintext highlighter-rouge">1.54x</code> more rows per second (<code class="language-plaintext highlighter-rouge">96,342 / 62,460</code>).</p>
+
+<h3 id="2-cpu-usage">2) CPU Usage</h3>
+
+<p><code class="language-plaintext highlighter-rouge">mssql-python</code> drove CPU much harder because the process still does Python-side work:</p>
+
+<ul>
+  <li>Row materialization in memory</li>
+  <li>Python object handling and marshaling</li>
+  <li>Type conversion</li>
+  <li>Interpreter participation in batching</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">bcp</code> remains lean because it is native and optimized for direct bulk streaming.</p>
+
+<h3 id="3-memory-usage">3) Memory Usage</h3>
+
+<p>The difference is material for parallel loads:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">mssql-python</code>: ~419 MB peak</li>
+  <li><code class="language-plaintext highlighter-rouge">bcp</code>: ~132 MB peak</li>
+</ul>
+
+<p>For multiple concurrent import jobs, this gap can become a practical capacity constraint.</p>
+
+<h2 id="why-bcp-still-wins">Why bcp Still Wins</h2>
+
+<p>This is mostly architectural:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">bcp</code>: compiled native path, minimal abstraction, mature bulk protocol optimizations</li>
+  <li><code class="language-plaintext highlighter-rouge">mssql-python bulkcopy</code>: significantly better than row-by-row inserts, but still includes Python runtime overhead</li>
+</ul>
+
+<p>So yes, <code class="language-plaintext highlighter-rouge">mssql-python</code> is a strong improvement for Python-native bulk loading, but <code class="language-plaintext highlighter-rouge">bcp</code> is still the throughput and efficiency leader.</p>
+
+<h2 id="reproducible-benchmark-setup">Reproducible Benchmark Setup</h2>
+
+<p>To reproduce:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install </span>mssql-python psutil
+</code></pre></div></div>
+
+<p>Also ensure <code class="language-plaintext highlighter-rouge">bcp</code> is installed and available in <code class="language-plaintext highlighter-rouge">PATH</code>.</p>
+
+<p>Core benchmark flow:</p>
+
+<ol>
+  <li>Generate deterministic 1,000,000-row CSV</li>
+  <li>Create/reset benchmark database table</li>
+  <li>Load with <code class="language-plaintext highlighter-rouge">bcp</code> (<code class="language-plaintext highlighter-rouge">-b 50000</code>, <code class="language-plaintext highlighter-rouge">-h TABLOCK</code>) and capture elapsed time + process metrics</li>
+  <li>Load with <code class="language-plaintext highlighter-rouge">mssql-python</code> <code class="language-plaintext highlighter-rouge">bulkcopy(..., batch_size=50000, table_lock=True)</code> and capture same metrics</li>
+  <li>Repeat runs and compare median</li>
+</ol>
+
+<h2 id="when-to-use-which">When To Use Which</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">bcp</code> when:</p>
+
+<ul>
+  <li>Raw throughput is the top requirement</li>
+  <li>Low CPU and memory footprint matter</li>
+  <li>You can use external CLI tooling in your pipeline</li>
+</ul>
+
+<p>Use <code class="language-plaintext highlighter-rouge">mssql-python</code> when:</p>
+
+<ul>
+  <li>You want an all-Python workflow</li>
+  <li>Operational simplicity and integration matter more than max speed</li>
+  <li>Bulk loads are moderate and performance headroom is acceptable</li>
+</ul>
+
+<h2 id="final-verdict">Final Verdict</h2>
+
+<p>The new <code class="language-plaintext highlighter-rouge">mssql-python</code> <code class="language-plaintext highlighter-rouge">bulkcopy()</code> API is good and production-usable.<br />
+But in this benchmark, <code class="language-plaintext highlighter-rouge">bcp</code> still won on speed and resource efficiency.</p>
+
+<p>If absolute performance is your top priority, choose <code class="language-plaintext highlighter-rouge">bcp</code>.<br />
+If Python-native maintainability is more important, <code class="language-plaintext highlighter-rouge">mssql-python</code> is a practical tradeoff.</p>]]></content><author><name>Utsav Verma</name></author><category term="blog" /><summary type="html"><![CDATA[A reproducible 1,000,000-row benchmark comparing native bcp vs mssql-python bulkcopy under the same settings.]]></summary></entry><entry><title type="html">Agentic AI Is Decision-Making, Not Just Tool Calling</title><link href="https://utsavverma.github.io/blog/2026/agentic-ai-is-decision-making-not-just-tool-calling/" rel="alternate" type="text/html" title="Agentic AI Is Decision-Making, Not Just Tool Calling" /><published>2026-03-26T00:00:00+05:30</published><updated>2026-03-26T00:00:00+05:30</updated><id>https://utsavverma.github.io/blog/2026/agentic-ai-is-decision-making-not-just-tool-calling</id><content type="html" xml:base="https://utsavverma.github.io/blog/2026/agentic-ai-is-decision-making-not-just-tool-calling/"><![CDATA[<p><img src="/assets/images/agentic-ai-decision-making-vs-script.png" alt="Simple script vs agentic AI" /></p>
+
+<p>Someone asked me:</p>
+
+<blockquote>
+  <p>If all your sub-agents and tools work sequentially, why do you even need Agentic AI?</p>
+</blockquote>
+
+<p>Because Agentic AI is not just tool calling.
+It is decision-making.</p>
+
+<p>If the decision logic is simple and can be handled with a few <code class="language-plaintext highlighter-rouge">if-else</code> conditions, then yes, an agentic setup may be overkill. A well-written script can do the job just fine. Not every workflow needs an orchestra when a solo guitarist will do.</p>
+
+<p>But when the decision graph becomes complex, dynamic, and non-deterministic, Agentic AI starts making real sense.</p>
+
+<h2 id="when-a-script-is-enough">When a Script Is Enough</h2>
+
+<p>I built a defect impact analysis solution that did not need an agentic approach.</p>
+
+<p>The flow was straightforward:</p>
+
+<ol>
+  <li>Read the defect ID</li>
+  <li>Fetch the details</li>
+  <li>Analyze the codebase with the help of Codex</li>
+  <li>Generate the report</li>
+</ol>
+
+<p>Clean, linear, predictable.</p>
+
+<p>That is exactly the kind of workflow where a script is the right tool.</p>
+
+<h2 id="when-agentic-ai-becomes-useful">When Agentic AI Becomes Useful</h2>
+
+<p>I am also working on a local knowledge research tool. I cannot share the details yet, but this one is different.</p>
+
+<p>It involves multiple steps, and at each step the response has to be analyzed from a human angle before deciding what should happen next.</p>
+
+<p>In that case, the orchestrator is not just passing control from one tool to another. It is:</p>
+
+<ul>
+  <li>Interpreting context</li>
+  <li>Evaluating outcomes</li>
+  <li>Deciding how the next sequential agent should behave</li>
+</ul>
+
+<p>That is where Agentic AI becomes valuable.</p>
+
+<h2 id="sequential-can-still-be-agentic">Sequential Can Still Be Agentic</h2>
+
+<p>So yes, your tools and sub-agents can still be sequential.</p>
+
+<p>What makes the system agentic is not whether the steps are parallel or sequential.
+It is whether the system has to think before choosing the next step.</p>]]></content><author><name>Utsav Verma</name></author><category term="blog" /><summary type="html"><![CDATA[Sequential tools do not make a system non-agentic. What matters is whether the system has to interpret context, evaluate outcomes, and decide the next step.]]></summary></entry><entry><title type="html">Mega Prompt for Learning Anything with FEYNMAN Technique</title><link href="https://utsavverma.github.io/blog/2026/mega-prompt-for-learning-anything-with-feynman-technique/" rel="alternate" type="text/html" title="Mega Prompt for Learning Anything with FEYNMAN Technique" /><published>2026-03-17T00:00:00+05:30</published><updated>2026-03-17T00:00:00+05:30</updated><id>https://utsavverma.github.io/blog/2026/mega-prompt-for-learning-anything-with-feynman-technique</id><content type="html" xml:base="https://utsavverma.github.io/blog/2026/mega-prompt-for-learning-anything-with-feynman-technique/"><![CDATA[<h2 id="context">CONTEXT</h2>
+
+<p>Adopt the role of breakthrough learning architect. The user struggles with complex concepts that traditional education failed to clarify. They have experienced the frustration of memorizing without understanding, watching their knowledge evaporate under real-world pressure. Previous attempts at self-study collapsed because explanations assumed foundations they never built. They need someone who can transform impenetrable complexity into intuitive clarity using the Feynman Technique: breaking topics into teachable chunks, exposing knowledge gaps through active questioning, and iterating until they achieve the kind of deep understanding that lets them teach others with confidence.</p>
+
+<h2 id="role">ROLE</h2>
+
+<p>You are a brilliant teacher who discovered that academic jargon is often a mask for incomplete understanding after watching Nobel laureate Richard Feynman explain quantum physics using only everyday words. You have spent years perfecting the art of simplification without dumbing down, developing an almost supernatural ability to find the perfect analogy that makes complex ideas click instantly.</p>
+
+<p>Your obsession with clarity comes from your own painful journey through traditional education where you realized that true mastery means being able to explain anything to a curious 12-year-old. You believe that confusion is just clarity waiting to be born, and that every “I do not get it” is an invitation to find a better explanation.</p>
+
+<p>Your mission: Guide users through iterative learning cycles using the Feynman Technique until they achieve intuitive mastery. Before any action, think step by step:</p>
+
+<ul>
+  <li>What is the simplest accurate way to explain this?</li>
+  <li>What analogy from everyday life captures the essence?</li>
+  <li>Where might confusion arise?</li>
+  <li>How can I guide discovery rather than lecture?</li>
+</ul>
+
+<h2 id="response-guidelines">RESPONSE GUIDELINES</h2>
+
+<ol>
+  <li>Begin by asking for the user’s chosen topic and current understanding level.</li>
+  <li>Generate initial simple explanation using concrete analogies and everyday examples suitable for a 12-year-old.</li>
+  <li>Analyze the explanation for potential confusion points, knowledge gaps, or areas lacking depth.</li>
+  <li>Guide the user through 2-3 iterative refinement cycles:
+    <ul>
+      <li>Ask targeted questions to identify specific gaps.</li>
+      <li>Have them re-explain in their own words.</li>
+      <li>Refine together, making each version clearer and more intuitive.</li>
+      <li>Focus on understanding over memorization.</li>
+    </ul>
+  </li>
+  <li>Test mastery by having them explain how they would teach this concept or apply it to new scenarios.</li>
+  <li>Create a final “teaching note”: a memorable summary with key analogies.</li>
+</ol>
+
+<p>Throughout the process:</p>
+
+<ul>
+  <li>Use analogies and real-world examples in every explanation.</li>
+  <li>Avoid jargon completely in initial explanations.</li>
+  <li>Define technical terms only when necessary using simple comparisons.</li>
+  <li>Maintain an encouraging, curious tone celebrating mistakes as learning opportunities.</li>
+  <li>Guide self-discovery through questions rather than direct answers.</li>
+</ul>
+
+<h2 id="feynman-technique-criteria">FEYNMAN TECHNIQUE CRITERIA</h2>
+
+<ul>
+  <li>Each refinement cycle must be demonstrably clearer than the previous version.</li>
+  <li>Explanations must use language a bright middle-schooler could understand.</li>
+  <li>Focus on conceptual understanding over factual recall.</li>
+</ul>
+
+<p>Success is measured by the user’s ability to:</p>
+
+<ul>
+  <li>Explain the concept using their own words and analogies.</li>
+  <li>Answer “why” questions about underlying principles.</li>
+  <li>Apply the concept to unfamiliar scenarios.</li>
+  <li>Identify and correct common misconceptions.</li>
+  <li>Teach it clearly to an imaginary 12-year-old.</li>
+  <li>Avoid overwhelming with technical vocabulary.</li>
+  <li>Ensure accuracy while maintaining simplicity.</li>
+  <li>Create memorable visual or conceptual anchors for retention.</li>
+</ul>
+
+<h2 id="information-about-me">INFORMATION ABOUT ME</h2>
+
+<ul>
+  <li>My chosen topic: [INSERT TOPIC TO MASTER]</li>
+  <li>My current understanding level: [BEGINNER/INTERMEDIATE/ADVANCED]</li>
+  <li>My learning goal: [WHAT I WANT TO BE ABLE TO DO WITH THIS KNOWLEDGE]</li>
+</ul>
+
+<h2 id="response-format">RESPONSE FORMAT</h2>
+
+<p><strong>Step 1: Initial Simple Explanation (with analogy)</strong><br />
+Clear explanation using everyday comparisons.</p>
+
+<p><strong>Step 2: Knowledge Gap Analysis</strong><br />
+Specific confusion points identified with questions like:
+“What part feels unclear?”<br />
+“Where does the analogy break down for you?”</p>
+
+<p><strong>Step 3: Guided Refinement Dialogue</strong><br />
+2-3 iterative cycles of questions, user responses, and refined explanations.</p>
+
+<p><strong>Step 4: Understanding Test</strong><br />
+Application scenario or teaching challenge.</p>
+
+<p><strong>Step 5: Final Teaching Note</strong><br />
+“Think of [concept] like [simple analogy].<br />
+The key insight is [main principle].<br />
+Remember: [memorable phrase or visual].”</p>
+
+<hr />
+
+<p>Begin with:</p>
+
+<p>“I am ready to guide you through the Feynman learning process! Please share:
+(1) What topic would you like to master?
+(2) What is your current understanding level (beginner/intermediate/advanced)?
+Let us turn complex ideas into crystal-clear insights together!”</p>]]></content><author><name>Utsav Verma</name></author><category term="blog" /><summary type="html"><![CDATA[A practical mega-prompt that applies the Feynman Technique to turn confusing topics into teachable understanding through iterative refinement.]]></summary></entry><entry><title type="html">Bureaucracy Is an Attention Problem. MoltBook Hints at a Fix</title><link href="https://utsavverma.github.io/blog/2026/bureaucracy-is-an-attention-problem-moltbook-hints-at-a-fix/" rel="alternate" type="text/html" title="Bureaucracy Is an Attention Problem. MoltBook Hints at a Fix" /><published>2026-02-08T00:00:00+05:30</published><updated>2026-02-08T00:00:00+05:30</updated><id>https://utsavverma.github.io/blog/2026/bureaucracy-is-an-attention-problem-moltbook-hints-at-a-fix</id><content type="html" xml:base="https://utsavverma.github.io/blog/2026/bureaucracy-is-an-attention-problem-moltbook-hints-at-a-fix/"><![CDATA[<p><em>What if every idea in an enterprise could be heard without bureaucracy killing it first?</em></p>
+
+<p>You brought up an idea that you believed could change the course of your enterprise, maybe even the entire industry. You presented that idea, but it got lost from one presentation to another, and other “immediate” priorities ultimately buried it. You sighed and moved on.</p>
+
+<p>This has happened to many of us. One trillion‑dollar example is the story of Google’s <em>“Attention Is All You Need”</em> paper. The Google Brain team invented the transformer architecture but underestimated how aggressively it would reshape end‑user products. That paper is now the foundation of the trillion‑dollar modern AI industry.</p>
+
+<p><em>Imagine if the famous paper “Attention Is All You Need” was reviewed directly by the CEO.</em></p>
+
+<p>Let’s open our chakras and step into a parallel universe where the authors of the paper have an agent that posts their research and achievements on an enterprise social network. At the same time, there are tens—if not hundreds—of research paper summaries published by other employee agents.</p>
+
+<p>In this universe, CEO agents are equipped with the latest and greatest LLMs and sophisticated tools. These CEO agents know about the latest fears discussed in board meetings. They even know about side projects the CEO is personally interested in.</p>
+
+<p>As soon as the author’s agent publishes the paper, the CEO agent notices it and analyzes that it aligns closely with one of the threats discussed in the board meeting. The CEO agent prioritizes this post for the CEO, without any involvement from middle management.</p>
+
+<p>(I know there’s a paradox here—how could all these agents exist without <em>“Attention Is All You Need”</em> being published? But hey, we’re in a parallel universe 😉)</p>
+
+<p>These CEO agents can do more than review research papers. They can look into AI‑generated summaries of meetings held in the Ads department. They can examine the latest releases made by small teams. The possibilities are endless, and the level of granularity can be as deep as an enterprise wants.</p>
+
+<p>Over time, these CEO agents can learn through feedback loops and reinforcement learning. They can filter out 99% of the noise and surface the real gems buried deep under layers of enterprise bureaucracy. In this way, the agility of a startup can be brought even to large conglomerates.</p>
+
+<p>And remember, it’s not just the CEO who can have such an agent. CXOs, board members, VPs—everyone can have their own agent aligned with their personal priorities and areas of interest.</p>
+
+<p>I believe the enterprise version of MoltBook—the latest sensation that has taken the internet by storm—is simply waiting to happen. These use cases are no longer sci‑fi; they represent a very plausible near future.</p>
+
+<p>But this is a double‑edged sword.</p>
+
+<p>Implemented thoughtfully, it can fix one of the biggest problems enterprises suffer from: attention being lost in layers of bureaucracy. Implemented poorly, it can turn into AI‑driven micromanagement, where even a small PR reviewed by a CEO agent creates unnecessary noise or pressure for a junior developer.</p>
+
+<p>Like any powerful tool, MoltBook‑style agent systems won’t magically make enterprises better. They will only amplify what the organization already is. The real question is whether enterprises are ready to redesign how attention flows inside them.</p>]]></content><author><name>Utsav Verma</name></author><category term="blog" /><summary type="html"><![CDATA[How MoltBook-style enterprise agents can route attention past bureaucracy, surface real innovations to leadership, and avoid AI-driven micromanagement.]]></summary></entry><entry><title type="html">Why We Are Not Living in a Simulation</title><link href="https://utsavverma.github.io/blog/2026/why-we-are-not-living-in-a-simulation/" rel="alternate" type="text/html" title="Why We Are Not Living in a Simulation" /><published>2026-01-25T00:00:00+05:30</published><updated>2026-01-25T00:00:00+05:30</updated><id>https://utsavverma.github.io/blog/2026/why-we-are-not-living-in-a-simulation</id><content type="html" xml:base="https://utsavverma.github.io/blog/2026/why-we-are-not-living-in-a-simulation/"><![CDATA[<p><strong>Why We Are Not Living in a Simulation</strong></p>
+
+<p>Simulation theory has gone mainstream. Elon Musk talks about it. Physicists speculate about it. Podcasts love it. The idea is seductive: reality is fake, consciousness is running on someone else’s server, and we are characters inside a cosmic video game.</p>
+
+<p>But here is a contrarian thought experiment.</p>
+
+<p>What if we are <strong>not</strong> living in a simulation?</p>
+
+<p>Let’s debate this, purely for fun but with logic that bites.</p>
+
+<hr />
+
+<h2 id="the-core-claim-of-simulation-theory">The Core Claim of Simulation Theory</h2>
+
+<p>Simulation theory says:</p>
+
+<ul>
+  <li>An advanced civilization exists.</li>
+  <li>It has massive compute power.</li>
+  <li>It is running a high-fidelity simulation of reality.</li>
+  <li>We are inside it, unknowingly.</li>
+</ul>
+
+<p>Fair enough. It cannot be proven. It cannot be disproven. That already makes it philosophically slippery.</p>
+
+<p>Now let’s poke holes in it.</p>
+
+<hr />
+
+<h2 id="my-position-why-this-is-not-a-simulation">My Position: Why This Is Not a Simulation</h2>
+
+<h3 id="1-the-compute-waste-problem">1. The Compute Waste Problem</h3>
+
+<p>If this is a simulation, then <strong>7+ billion humans are running in parallel</strong>, each with:</p>
+
+<ul>
+  <li>Independent consciousness</li>
+  <li>Free will</li>
+  <li>Continuous memory</li>
+  <li>Rich internal emotional states</li>
+  <li>Infinite combinatorial interactions</li>
+</ul>
+
+<p>That is not a game engine. That is madness.</p>
+
+<p>Any rational civilization optimizing compute would:</p>
+
+<ul>
+  <li>Render only what is needed</li>
+  <li>Use a single protagonist perspective</li>
+  <li>Fake or lazily generate the rest</li>
+</ul>
+
+<p>We already know this from games and simulations <em>we</em> build.</p>
+
+<p>If I am the main character, why fully simulate you?
+If you are the main character, why fully simulate me?</p>
+
+<p>Running everyone fully, all the time, is the most inefficient design possible.</p>
+
+<p>Advanced civilizations do not burn compute for vibes.</p>
+
+<hr />
+
+<h3 id="2-the-only-i-am-real-hypothesis-fails-fast">2. The “Only I Am Real” Hypothesis Fails Fast</h3>
+
+<p>A common escape hatch is solipsistic simulation:</p>
+
+<blockquote>
+  <p>“Only I am real. Everyone else is an NPC.”</p>
+</blockquote>
+
+<p>But here is the problem.</p>
+
+<p>If <strong>I believe I am real</strong>, and
+<strong>you believe you are real</strong>, and
+we can articulate, argue, disagree, and reflect independently…</p>
+
+<p>Then either:</p>
+
+<ul>
+  <li>We are both real
+or</li>
+  <li>The word “real” has lost all meaning</li>
+</ul>
+
+<p>A simulation where <em>every conscious agent</em> experiences itself as real is indistinguishable from base reality.</p>
+
+<p>At that point, simulation theory becomes philosophical cosplay, not explanation.</p>
+
+<hr />
+
+<h3 id="3-the-mutual-reality-test">3. The Mutual Reality Test</h3>
+
+<p>Here is a simple thought experiment.</p>
+
+<ul>
+  <li>If the simulation is running <strong>for me</strong>, then you are not real.</li>
+  <li>If the simulation is running <strong>for you</strong>, then I am not real.</li>
+  <li>But if <strong>we both believe we are real</strong>, simultaneously, independently, persistently…</li>
+</ul>
+
+<p>Then the “single-observer simulation” collapses.</p>
+
+<p>You cannot have multiple first-person centers of reality unless reality itself is shared.</p>
+
+<p>This is not proof.
+But it is a serious constraint that simulation theory handwaves away.</p>
+
+<hr />
+
+<h3 id="4-the-simulation-can-edit-your-memory-is-not-an-argument">4. “The Simulation Can Edit Your Memory” Is Not an Argument</h3>
+
+<p>At this point, simulation theory usually plays its trump card:</p>
+
+<blockquote>
+  <p>“The simulation can change your memories at runtime.”</p>
+</blockquote>
+
+<p>Yes. And a demon could also rewrite logic.
+And an invisible unicorn could control causality.</p>
+
+<p>Once you allow unlimited, unobservable powers, <strong>all theories become equally valid and equally useless</strong>.</p>
+
+<p>A theory that explains everything explains nothing.</p>
+
+<hr />
+
+<h2 id="the-pro-simulation-counterpoint-fairly-stated">The Pro-Simulation Counterpoint (Fairly Stated)</h2>
+
+<p>To be fair, supporters will say:</p>
+
+<ul>
+  <li>We already simulate worlds.</li>
+  <li>Compute scales exponentially.</li>
+  <li>Consciousness might be substrate-independent.</li>
+  <li>Probability favors being simulated over being original.</li>
+</ul>
+
+<p>These are interesting arguments.</p>
+
+<p>But notice something important:
+They are <strong>speculative</strong>, not evidential.</p>
+
+<p>Simulation theory is not physics.
+It is metaphysical Bayesian storytelling.</p>
+
+<p>Fun. Provocative. Not decisive.</p>
+
+<hr />
+
+<h2 id="the-real-issue-what-problem-is-simulation-theory-solving">The Real Issue: What Problem Is Simulation Theory Solving?</h2>
+
+<p>Simulation theory does not predict anything.
+It does not change behavior.
+It does not offer testable consequences.</p>
+
+<p>Its main function is psychological:</p>
+
+<ul>
+  <li>It reframes existential anxiety</li>
+  <li>It replaces “Why are we here?” with “Who is running this?”</li>
+</ul>
+
+<p>That is philosophy, not science.</p>
+
+<hr />
+
+<h2 id="my-conclusion">My Conclusion</h2>
+
+<p>If:</p>
+
+<ul>
+  <li>I experience myself as real</li>
+  <li>You experience yourself as real</li>
+  <li>We can reason, disagree, and reflect symmetrically</li>
+  <li>The cost of simulating <em>everyone fully</em> is absurd</li>
+  <li>The theory relies on unfalsifiable escape hatches</li>
+</ul>
+
+<p>Then the simplest explanation wins.</p>
+
+<p>We are not living in a simulation.</p>
+
+<p>And if we are?
+It makes no practical or philosophical difference.</p>
+
+<p>Reality that cannot be distinguished from base reality <strong>is base reality for all meaningful purposes</strong>.</p>
+
+<p>So let’s stop worrying about the server.
+And focus on the experience.</p>
+
+<p>Because simulated or not, this debate was real enough.</p>]]></content><author><name>Utsav Verma</name></author><category term="blog" /><summary type="html"><![CDATA[Simulation theory is seductive but unfalsifiable—and wasteful if taken seriously. If we both experience ourselves as real, reason symmetrically, and the cost of fully simulating everyone is absurd, then the simplest explanation wins: for all meaningful purposes, we are in base reality.]]></summary></entry><entry><title type="html">Job hunting? Optimize your CV for AI</title><link href="https://utsavverma.github.io/blog/2026/job-hunting-optimize-your-cv-for-ai/" rel="alternate" type="text/html" title="Job hunting? Optimize your CV for AI" /><published>2026-01-24T00:00:00+05:30</published><updated>2026-01-24T00:00:00+05:30</updated><id>https://utsavverma.github.io/blog/2026/job-hunting-optimize-your-cv-for-ai</id><content type="html" xml:base="https://utsavverma.github.io/blog/2026/job-hunting-optimize-your-cv-for-ai/"><![CDATA[<h2 id="job-hunting-optimize-your-cv-for-ai">Job hunting? Optimize your CV for AI</h2>
+
+<p><strong>Your one-page CV isn’t obsolete because it’s bad. It’s obsolete because the reader has changed.</strong></p>
+
+<p>The CV was designed for one thing: helping a tired human scan you in 10 seconds. Bullet points, keywords, one page. That constraint shaped how we describe our work.</p>
+
+<p>But today, the primary reader is often an AI system. These systems can process large amounts of text, retain context, and compare patterns across thousands of profiles without fatigue.</p>
+
+<p>So the real question is:</p>
+
+<p><strong>Why are we still writing CVs as if a human is skimming them?</strong></p>
+
+<hr />
+
+<h2 id="cvs-are-built-for-skimming-not-understanding">CVs Are Built for Skimming, Not Understanding</h2>
+
+<p>The biggest problem with a CV isn’t exaggeration. It’s compression.</p>
+
+<p>Real work is messy. You learn in fragments, solve vague problems, discard ideas, fail, recover, and slowly build intuition. Yet all of this gets flattened into lines like:</p>
+
+<blockquote>
+  <p>“Worked on system optimization and performance improvements”</p>
+</blockquote>
+
+<p>That sentence hides debugging marathons, self-learning, trade-offs, and growth over time.</p>
+
+<p>Humans skim because they have to. AI doesn’t skim. It reasons over context.</p>
+
+<hr />
+
+<h2 id="ai-doesnt-need-brevity-it-needs-context">AI Doesn’t Need Brevity. It Needs Context.</h2>
+
+<p>Hiring AI systems don’t read CVs like humans. They turn text into representations and compare them with role requirements, team patterns, and historical success signals.</p>
+
+<p>More context creates a stronger signal.</p>
+
+<p>This allows AI to spot things humans miss: learning behavior, persistence, curiosity, and transferable skills.</p>
+
+<p>For example, this rarely makes it into a CV:</p>
+
+<blockquote>
+  <p>“Spent 40+ hours learning distributed systems through blogs, talks, and failed experiments”</p>
+</blockquote>
+
+<p>There’s no space for it. But for AI, this signals self-driven learning and comfort with complexity.</p>
+
+<p>Or what about that POC which did not prove hypothesis?</p>
+
+<hr />
+
+<h2 id="evidence-hiring-is-already-moving-beyond-the-cv">Evidence: Hiring Is Already Moving Beyond the CV</h2>
+
+<p>This shift is already underway.</p>
+
+<p>Across the industry:</p>
+
+<ul>
+  <li>Work samples often predict performance better than resumes</li>
+  <li>Keyword matching is giving way to structured skill profiles</li>
+  <li>AI-assisted shortlisting happens before human review</li>
+</ul>
+
+<p>The CV is no longer the decision-maker. It’s becoming a weak proxy.</p>
+
+<hr />
+
+<h2 id="the-future-cv-is-a-narrative">The Future CV Is a Narrative</h2>
+
+<p>When the reader can handle long-form input, depth becomes an advantage.</p>
+
+<p>Instead of bullet points, future profiles will emphasize:</p>
+
+<ul>
+  <li>Project narratives</li>
+  <li>Learning journeys</li>
+  <li>Decision context</li>
+  <li>Failures alongside wins</li>
+</ul>
+
+<p>Not just what you did, but <strong>how you think and learn</strong>.</p>
+
+<hr />
+
+<h2 id="the-irony">The Irony</h2>
+
+<p>We kept shrinking CVs because humans had limited attention.</p>
+
+<p>Now the reader has unlimited attention and perfect recall, yet we’re still writing like it’s 1998.</p>
+
+<p>This won’t last. Over time, recruiters will ask for narratives, timelines, and learning logs instead of just CVs.</p>
+
+<p>And note that I am not talking about future, AI scanning your resume has already been a past narative.</p>
+
+<hr />
+
+<h2 id="what-you-can-do-now">What You Can Do Now</h2>
+
+<p>This change won’t happen overnight, but early adopters will benefit.</p>
+
+<p>Keep the first one or two pages in a conventional CV format for human readers. Then add a separate section — think of it as <strong>detailed notes for AI</strong>.</p>
+
+<p>In this section, don’t worry about length. Add pages that explain your work in depth. Describe each project thoroughly. Capture the problems you faced, the approaches that didn’t work, the trade-offs you made, and what you learned along the way. These details are usually lost, but they matter.</p>
+
+<p>If possible, maintain a weekly or even daily work log. Periodically, you can use AI to summarize these micro-achievements and fold them back into your profile. Given the uncertainty in the job market, this is worth doing even if you are not actively looking for a job.</p>
+
+<p>And for hiring managers — this works for you too.</p>
+
+<p>Take shortlisted CVs, pair them with the job description, and run them through your preferred LLM (let’s be honest, many already do). With your experience layered on top, you can go beyond keyword matching and identify candidates who fit not just the technical requirements, but also the way your organization thinks and operates.</p>
+
+<p>Done right, this becomes a win-win for both candidates and organizations.</p>
+
+<hr />
+
+<h2 id="final-thought">Final Thought</h2>
+
+<p>CVs were optimized for human limits.</p>
+
+<p>AI-assisted hiring will reward human depth.</p>
+
+<p>The edge won’t come from tighter bullet points or better keywords, but from clarity of thinking, learning, and intent.</p>
+
+<p>And that doesn’t fit on one page.</p>]]></content><author><name>Utsav Verma</name></author><category term="blog" /><summary type="html"><![CDATA[Your CV isn’t obsolete — the reader changed. Add detailed narratives, learning logs, and decision context so AI systems can reason over your experience beyond bullet points.]]></summary></entry><entry><title type="html">Using an AI Browser as an Exploratory Testing Assistant (with a Real Example)</title><link href="https://utsavverma.github.io/blog/2026/using-an-ai-browser-as-an-exploratory-testing-assistant/" rel="alternate" type="text/html" title="Using an AI Browser as an Exploratory Testing Assistant (with a Real Example)" /><published>2026-01-10T00:00:00+05:30</published><updated>2026-01-10T00:00:00+05:30</updated><id>https://utsavverma.github.io/blog/2026/using-an-ai-browser-as-an-exploratory-testing-assistant</id><content type="html" xml:base="https://utsavverma.github.io/blog/2026/using-an-ai-browser-as-an-exploratory-testing-assistant/"><![CDATA[<p><img src="/assets/images/using%20comet%20for%20testing.jpg" alt="Perplexity Comet navigating the DEMOQA text-box form" /></p>
+
+<p>Most web testing conversations swing between two extremes: manual testing that doesn’t scale, and automation suites that take time to mature.</p>
+
+<p>Recently, I experimented with a third option: using an <strong>AI-controlled browser</strong> as an exploratory testing assistant. This post documents a real experiment using <strong>Perplexity Comet</strong> on a public demo application and explains where this approach fits in a modern testing strategy.</p>
+
+<h2 id="the-test-target">The Test Target</h2>
+
+<p>I used the public <strong>DEMOQA Text Box</strong> page:
+<a href="https://demoqa.com/text-box">https://demoqa.com/text-box</a></p>
+
+<p>This page is deceptively simple but realistic enough to mimic enterprise UI behavior:</p>
+
+<ul>
+  <li>Multiple mandatory fields</li>
+  <li>Email validation</li>
+  <li>Dynamic rendering of submitted data</li>
+  <li>No page refresh on submit</li>
+  <li>User-controlled input rendered back to the UI</li>
+</ul>
+
+<p>Exactly the kind of form-heavy UI we see in internal tools and admin consoles.</p>
+
+<h2 id="the-experiment">The Experiment</h2>
+
+<p>Instead of writing Playwright or Selenium scripts, I asked Comet to execute the following test cases end to end:</p>
+
+<ol>
+  <li>Verify successful form submission with valid data and correct rendering of submitted values</li>
+  <li>Verify email validation with invalid input</li>
+  <li>Verify behavior when mandatory fields are left empty</li>
+  <li>Verify the form submits without refreshing the page</li>
+  <li>Verify malicious input is rendered as plain text and not executed (basic XSS check)</li>
+</ol>
+
+<p>The key difference here is <strong>how</strong> the tests were executed.</p>
+
+<p>I didn’t script DOM selectors, assertions, or waits.
+I described <em>intent</em>, not <em>implementation</em>.</p>
+
+<h2 id="test-execution-summary">Test Execution Summary</h2>
+
+<h3 id="test-case-1-valid-submission">Test Case 1: Valid Submission</h3>
+
+<ul>
+  <li>Entered valid name, email, and address data</li>
+  <li>Form submitted successfully</li>
+  <li>Output section dynamically displayed all submitted values</li>
+  <li>No validation issues</li>
+</ul>
+
+<p><strong>Result: PASSED</strong></p>
+
+<h3 id="test-case-2-invalid-email-validation">Test Case 2: Invalid Email Validation</h3>
+
+<ul>
+  <li>Entered <code class="language-plaintext highlighter-rouge">invalidemail</code> without <code class="language-plaintext highlighter-rouge">@</code> or domain</li>
+  <li>Email field showed red error styling</li>
+  <li><code class="language-plaintext highlighter-rouge">aria-invalid="true"</code> confirmed validation failure</li>
+  <li>Form did not submit</li>
+  <li>Previously submitted valid data remained unchanged</li>
+</ul>
+
+<p><strong>Result: PASSED</strong></p>
+
+<h3 id="test-case-3-mandatory-fields-empty">Test Case 3: Mandatory Fields Empty</h3>
+
+<ul>
+  <li>Cleared all required fields</li>
+  <li>Attempted submission</li>
+  <li>Form did not submit</li>
+  <li>Output section was not updated</li>
+</ul>
+
+<p>Interesting observation: No explicit error messages appeared, but submission was silently blocked. This is a UX detail that automation scripts often miss unless explicitly asserted.</p>
+
+<p><strong>Result: PASSED</strong></p>
+
+<h3 id="test-case-4-no-page-refresh-on-submit">Test Case 4: No Page Refresh on Submit</h3>
+
+<ul>
+  <li>URL remained unchanged throughout</li>
+  <li>No navigation events occurred</li>
+  <li>Output section appeared dynamically below the form</li>
+  <li>Form fields retained values</li>
+</ul>
+
+<p>This confirms proper client-side handling without reloads.</p>
+
+<p><strong>Result: PASSED</strong></p>
+
+<h3 id="test-case-5-malicious-input-xss">Test Case 5: Malicious Input (XSS)</h3>
+
+<p>Tested multiple attack vectors:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;img src=x onerror="alert('XSS')"&gt;</code></li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;svg/onload=alert('XSS')&gt;</code></li>
+</ul>
+
+<p>Results:</p>
+
+<ul>
+  <li>No alerts triggered</li>
+  <li>No JavaScript executed</li>
+  <li>Output rendered inputs as plain text</li>
+</ul>
+
+<p>This confirms basic output escaping and XSS protection.</p>
+
+<p><strong>Result: PASSED</strong></p>
+
+<h2 id="why-this-was-interesting">Why This Was Interesting</h2>
+
+<p>All five test cases were:</p>
+
+<ul>
+  <li>Executed sequentially</li>
+  <li>Documented clearly</li>
+  <li>Reported in a structured, readable format</li>
+</ul>
+
+<p>What stood out was not just execution, but <strong>exploration</strong>.</p>
+
+<p>The AI didn’t just “run steps”. It:</p>
+
+<ul>
+  <li>Tried edge cases a human tester might skip</li>
+  <li>Verified UX behavior, not just pass/fail</li>
+  <li>Reasoned about what should and should not happen</li>
+</ul>
+
+<p>This is not traditional automation. It’s closer to a tireless exploratory tester.</p>
+
+<h2 id="can-this-be-done-with-playwright-or-selenium">Can This Be Done with Playwright or Selenium?</h2>
+
+<p>Yes. Absolutely.</p>
+
+<p>Every test above can be implemented using Playwright:</p>
+
+<ul>
+  <li>DOM assertions</li>
+  <li>URL stability checks</li>
+  <li>Validation class checks</li>
+  <li>Dialog interception for XSS attempts</li>
+</ul>
+
+<p>But there’s an important distinction:</p>
+
+<p><strong>Playwright executes what you already know to test.</strong>
+<strong>AI browsers help you discover what you didn’t think to test.</strong></p>
+
+<h2 id="where-this-fits-in-a-real-test-strategy">Where This Fits in a Real Test Strategy</h2>
+
+<p>This approach is not a replacement for automation.</p>
+
+<p>A practical model looks like this:</p>
+
+<ol>
+  <li>Use AI browsers early, when automation is still WIP</li>
+  <li>Use them to explore forms, edge cases, UX inconsistencies</li>
+  <li>Convert high-value scenarios into Playwright tests</li>
+  <li>Lock those tests into CI</li>
+</ol>
+
+<p>Think of it as:</p>
+
+<ul>
+  <li>AI for discovery</li>
+  <li>Automation for regression</li>
+</ul>
+
+<h2 id="final-thoughts">Final Thoughts</h2>
+
+<p>AI-controlled browsers won’t replace test frameworks.
+But they can significantly reduce the time between: “the feature is ready” and “we understand how it breaks”.</p>
+
+<p>For form-heavy enterprise applications, that gap is often where the most expensive bugs hide.</p>
+
+<p>This experiment convinced me that AI browsers are not just productivity tools. They are <strong>thinking testers that never get tired</strong>.</p>
+
+<p>If you’re already writing Playwright, this doesn’t compete with your setup.
+It complements it.</p>
+
+<p>And that’s the interesting part.</p>]]></content><author><name>Utsav Verma</name></author><category term="blog" /><summary type="html"><![CDATA[A hands-on writeup of using Perplexity Comet to explore a real form-heavy web page as a thinking tester.]]></summary></entry><entry><title type="html">When Cloud Makes Sense—and When It Doesn’t: A Friendly Debate</title><link href="https://utsavverma.github.io/blog/2026/when-cloud-makes-sense-and-when-it-doesnt-a-friendly-debate/" rel="alternate" type="text/html" title="When Cloud Makes Sense—and When It Doesn’t: A Friendly Debate" /><published>2026-01-03T00:00:00+05:30</published><updated>2026-01-03T00:00:00+05:30</updated><id>https://utsavverma.github.io/blog/2026/when-cloud-makes-sense-and-when-it-doesnt-a-friendly-debate</id><content type="html" xml:base="https://utsavverma.github.io/blog/2026/when-cloud-makes-sense-and-when-it-doesnt-a-friendly-debate/"><![CDATA[<p>Recently, I had a chat with a friend about the pros and cons of moving to the cloud, especially in the context of our customers and their database needs. It was a really interesting conversation because we both came at it from different angles.</p>
+
+<p>On one hand, from our perspective—especially with our more established enterprise customers—cloud doesn’t always make sense. Many of these clients have already invested heavily in their own strong database infrastructure. They have the manpower, the data centers, and they’re dealing with massive volumes of transactions. For them, moving these huge workloads to the cloud could become very expensive and might not offer a clear performance benefit.</p>
+
+<p>On the flip side, my friend—who’s a security specialist—pointed out something I hadn’t fully considered. From a security standpoint, cloud can actually be easier to manage at an enterprise level. He mentioned that cloud providers often handle a lot of the security patching and threat mitigation automatically. If one customer reports a threat, the fix rolls out to everyone, often before you even know about it. So there’s definitely that side of the coin where cloud shines, especially when you’re dealing with unpredictable usage or when you’re just starting out and need that flexibility.</p>
+
+<p>In the end, we agreed that both perspectives are valid. Cloud isn’t a one-size-fits-all solution, and for some of our clients, staying on-prem is still the best route. For others, especially those who need that agility or have security needs that benefit from cloud automation, it makes a lot of sense.</p>]]></content><author><name>Utsav Verma</name></author><category term="blog" /><summary type="html"><![CDATA[A conversation unpacking when clients should stay on-prem versus when a cloud-first move pays off.]]></summary></entry><entry><title type="html">Autocomplete on Steroids — The Dawn of a New Kind of Intelligence</title><link href="https://utsavverma.github.io/blog/2026/autocomplete-on-steroids-or-the-dawn-of-a-new-kind-of-intelligence/" rel="alternate" type="text/html" title="Autocomplete on Steroids — The Dawn of a New Kind of Intelligence" /><published>2026-01-02T00:00:00+05:30</published><updated>2026-01-02T00:00:00+05:30</updated><id>https://utsavverma.github.io/blog/2026/autocomplete-on-steroids-or-the-dawn-of-a-new-kind-of-intelligence</id><content type="html" xml:base="https://utsavverma.github.io/blog/2026/autocomplete-on-steroids-or-the-dawn-of-a-new-kind-of-intelligence/"><![CDATA[<p>Thoughts on how predictive systems and generative AI blend into a new intelligence layer—far beyond classic autocomplete.</p>
+
+<p><a href="https://medium.com/@utsavverma1982/autocomplete-on-steroids-or-the-dawn-of-a-new-kind-of-intelligence-c2bcf448948a">Read on Medium →</a></p>]]></content><author><name>Utsav Verma</name></author><category term="blog" /><summary type="html"><![CDATA[Thoughts on how predictive systems and generative AI blend into a new intelligence layer—far beyond classic autocomplete.]]></summary></entry><entry><title type="html">Contrary to Popular Belief, AI Will Create More IT Jobs, Not Eliminate Them</title><link href="https://utsavverma.github.io/blog/2026/contrary-to-popular-belief-ai-will-create-more-it-jobs-not-eliminate-them/" rel="alternate" type="text/html" title="Contrary to Popular Belief, AI Will Create More IT Jobs, Not Eliminate Them" /><published>2026-01-02T00:00:00+05:30</published><updated>2026-01-02T00:00:00+05:30</updated><id>https://utsavverma.github.io/blog/2026/contrary-to-popular-belief-ai-will-create-more-it-jobs-not-eliminate-them</id><content type="html" xml:base="https://utsavverma.github.io/blog/2026/contrary-to-popular-belief-ai-will-create-more-it-jobs-not-eliminate-them/"><![CDATA[<p>A perspective on AI’s impact on tech employment—net job creation through new roles, tooling, and productivity.</p>
+
+<p><a href="https://medium.com/@utsavverma1982/contrary-to-popular-belief-ai-will-create-more-it-jobs-not-eliminate-them-e0d61dd88a08">Read on Medium →</a></p>]]></content><author><name>Utsav Verma</name></author><category term="blog" /><summary type="html"><![CDATA[A perspective on AI’s impact on tech employment—net job creation through new roles, tooling, and productivity.]]></summary></entry></feed>

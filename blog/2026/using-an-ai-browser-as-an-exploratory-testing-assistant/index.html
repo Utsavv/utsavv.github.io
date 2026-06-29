@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      Using an AI Browser as an Exploratory Testing Assistant (with a Real Example) | Utsav Verma
+    
+  
+</title>
+<meta name="author" content="Utsav Verma">
+<meta name="description" content="Senior Database Architect — SQL Server, Data Platforms, AI
+">
+
+  <meta name="keywords" content="sql-server, database, data-architecture, ai, performance-tuning">
+
+
+
+
+
+
+  <!-- OpenGraph -->
+  <meta property="og:site_name" content="Utsav Verma">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Utsav Verma | Using an AI Browser as an Exploratory Testing Assistant (with a Real Example)">
+  <meta property="og:url" content="https://utsavverma.github.io/blog/2026/using-an-ai-browser-as-an-exploratory-testing-assistant/">
+  <meta property="og:description" content="Senior Database Architect — SQL Server, Data Platforms, AI
+">
+  
+  <meta property="og:locale" content="en">
+
+  <!-- Twitter card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Using an AI Browser as an Exploratory Testing Assistant (with a Real Example)">
+  <meta name="twitter:description" content="Senior Database Architect — SQL Server, Data Platforms, AI
+">
+  
+  
+    <meta name="twitter:site" content="@utsavverma">
+    <meta name="twitter:creator" content="@utsavverma">
+  
+
+
+
+  <!-- Schema.org -->
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <script type="application/ld+json">
+    {
+        "author":
+        {
+            "@type": "Person",
+            "name": "Utsav Verma"
+        },
+        "url": "https://utsavverma.github.io/blog/2026/using-an-ai-browser-as-an-exploratory-testing-assistant/",
+        "@type": "BlogPosting",
+        "description": "Senior Database Architect — SQL Server, Data Platforms, AI
+",
+        "headline": "Using an AI Browser as an Exploratory Testing Assistant (with a Real Example)",
+        
+        "sameAs": ["https://github.com/utsavv", "https://www.linkedin.com/in/utsavverma", "https://twitter.com/utsavverma", "https://stackoverflow.com/users/2941322/uvdata"],
+        
+        "name": "Utsav Verma",
+        "@context": "https://schema.org"
+    }
+  </script>
+
+
+
+<!-- Bootstrap & MDB -->
+<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@{{version}}/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous">
+
+<!-- Bootstrap Table -->
+
+
+<!-- Fonts & Icons -->
+<link defer rel="stylesheet" href="/assets/css/academicons.min.css">
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css" media="" id="highlight_theme_light">
+
+
+
+<!-- Styles -->
+
+<!-- pseudocode -->
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%97%84%EF%B8%8F&lt;/text&gt;&lt;/svg&gt;">
+
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="canonical" href="https://utsavverma.github.io/blog/2026/using-an-ai-browser-as-an-exploratory-testing-assistant/">
+
+<!-- Dark Mode -->
+<script src="/assets/js/theme.js"></script>
+
+
+<!-- GeoJSON support via Leaflet -->
+
+
+<!-- diff2html -->
+
+
+<!-- GitHub Project Introduction Section -->
+
+
+
+
+
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav ">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/">
+          
+            
+              <span class="font-weight-bold">Utsav</span>
+            
+            
+            Verma
+          
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse text-right" id="navbarNav">
+        <ul class="navbar-nav ml-auto flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">about
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item active">
+                  
+                  <a class="nav-link" href="/blog/">blog
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  
+                  <a class="nav-link" href="/cv/">cv
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" title="Search" onclick="openSearchModal()">
+                <span class="nav-link">ctrl k <i class="ti ti-search"></i></span>
+              </button>
+            </li>
+          
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+
+
+
+
+
+
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">Using an AI Browser as an Exploratory Testing Assistant (with a Real Example)</h1>
+    <p class="post-meta">
+      Created in January 10, 2026
+      by Utsav Verma
+      
+      
+    </p>
+    <p class="post-tags">
+      
+        <a href="/blog/2026"> <i class="fa-solid fa-calendar fa-sm"></i> 2026 </a>
+      
+      
+
+      
+          ·  
+        
+          
+            <a href="/blog/category/blog">
+              <i class="fa-solid fa-tag fa-sm"></i> blog</a>
+          
+          
+        
+      
+    </p>
+  </header>
+
+  <article class="post-content">
+    
+    <div id="markdown-content">
+      <p><img src="/assets/images/using%20comet%20for%20testing.jpg" alt="Perplexity Comet navigating the DEMOQA text-box form"></p>
+
+<p>Most web testing conversations swing between two extremes: manual testing that doesn’t scale, and automation suites that take time to mature.</p>
+
+<p>Recently, I experimented with a third option: using an <strong>AI-controlled browser</strong> as an exploratory testing assistant. This post documents a real experiment using <strong>Perplexity Comet</strong> on a public demo application and explains where this approach fits in a modern testing strategy.</p>
+
+<h2 id="the-test-target">The Test Target</h2>
+
+<p>I used the public <strong>DEMOQA Text Box</strong> page:
+<a href="https://demoqa.com/text-box" rel="external nofollow noopener" target="_blank">https://demoqa.com/text-box</a></p>
+
+<p>This page is deceptively simple but realistic enough to mimic enterprise UI behavior:</p>
+
+<ul>
+  <li>Multiple mandatory fields</li>
+  <li>Email validation</li>
+  <li>Dynamic rendering of submitted data</li>
+  <li>No page refresh on submit</li>
+  <li>User-controlled input rendered back to the UI</li>
+</ul>
+
+<p>Exactly the kind of form-heavy UI we see in internal tools and admin consoles.</p>
+
+<h2 id="the-experiment">The Experiment</h2>
+
+<p>Instead of writing Playwright or Selenium scripts, I asked Comet to execute the following test cases end to end:</p>
+
+<ol>
+  <li>Verify successful form submission with valid data and correct rendering of submitted values</li>
+  <li>Verify email validation with invalid input</li>
+  <li>Verify behavior when mandatory fields are left empty</li>
+  <li>Verify the form submits without refreshing the page</li>
+  <li>Verify malicious input is rendered as plain text and not executed (basic XSS check)</li>
+</ol>
+
+<p>The key difference here is <strong>how</strong> the tests were executed.</p>
+
+<p>I didn’t script DOM selectors, assertions, or waits.
+I described <em>intent</em>, not <em>implementation</em>.</p>
+
+<h2 id="test-execution-summary">Test Execution Summary</h2>
+
+<h3 id="test-case-1-valid-submission">Test Case 1: Valid Submission</h3>
+
+<ul>
+  <li>Entered valid name, email, and address data</li>
+  <li>Form submitted successfully</li>
+  <li>Output section dynamically displayed all submitted values</li>
+  <li>No validation issues</li>
+</ul>
+
+<p><strong>Result: PASSED</strong></p>
+
+<h3 id="test-case-2-invalid-email-validation">Test Case 2: Invalid Email Validation</h3>
+
+<ul>
+  <li>Entered <code class="language-plaintext highlighter-rouge">invalidemail</code> without <code class="language-plaintext highlighter-rouge">@</code> or domain</li>
+  <li>Email field showed red error styling</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">aria-invalid="true"</code> confirmed validation failure</li>
+  <li>Form did not submit</li>
+  <li>Previously submitted valid data remained unchanged</li>
+</ul>
+
+<p><strong>Result: PASSED</strong></p>
+
+<h3 id="test-case-3-mandatory-fields-empty">Test Case 3: Mandatory Fields Empty</h3>
+
+<ul>
+  <li>Cleared all required fields</li>
+  <li>Attempted submission</li>
+  <li>Form did not submit</li>
+  <li>Output section was not updated</li>
+</ul>
+
+<p>Interesting observation: No explicit error messages appeared, but submission was silently blocked. This is a UX detail that automation scripts often miss unless explicitly asserted.</p>
+
+<p><strong>Result: PASSED</strong></p>
+
+<h3 id="test-case-4-no-page-refresh-on-submit">Test Case 4: No Page Refresh on Submit</h3>
+
+<ul>
+  <li>URL remained unchanged throughout</li>
+  <li>No navigation events occurred</li>
+  <li>Output section appeared dynamically below the form</li>
+  <li>Form fields retained values</li>
+</ul>
+
+<p>This confirms proper client-side handling without reloads.</p>
+
+<p><strong>Result: PASSED</strong></p>
+
+<h3 id="test-case-5-malicious-input-xss">Test Case 5: Malicious Input (XSS)</h3>
+
+<p>Tested multiple attack vectors:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;img src=x onerror="alert('XSS')"&gt;</code></li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;svg/onload=alert('XSS')&gt;</code></li>
+</ul>
+
+<p>Results:</p>
+
+<ul>
+  <li>No alerts triggered</li>
+  <li>No JavaScript executed</li>
+  <li>Output rendered inputs as plain text</li>
+</ul>
+
+<p>This confirms basic output escaping and XSS protection.</p>
+
+<p><strong>Result: PASSED</strong></p>
+
+<h2 id="why-this-was-interesting">Why This Was Interesting</h2>
+
+<p>All five test cases were:</p>
+
+<ul>
+  <li>Executed sequentially</li>
+  <li>Documented clearly</li>
+  <li>Reported in a structured, readable format</li>
+</ul>
+
+<p>What stood out was not just execution, but <strong>exploration</strong>.</p>
+
+<p>The AI didn’t just “run steps”. It:</p>
+
+<ul>
+  <li>Tried edge cases a human tester might skip</li>
+  <li>Verified UX behavior, not just pass/fail</li>
+  <li>Reasoned about what should and should not happen</li>
+</ul>
+
+<p>This is not traditional automation. It’s closer to a tireless exploratory tester.</p>
+
+<h2 id="can-this-be-done-with-playwright-or-selenium">Can This Be Done with Playwright or Selenium?</h2>
+
+<p>Yes. Absolutely.</p>
+
+<p>Every test above can be implemented using Playwright:</p>
+
+<ul>
+  <li>DOM assertions</li>
+  <li>URL stability checks</li>
+  <li>Validation class checks</li>
+  <li>Dialog interception for XSS attempts</li>
+</ul>
+
+<p>But there’s an important distinction:</p>
+
+<p><strong>Playwright executes what you already know to test.</strong>
+<strong>AI browsers help you discover what you didn’t think to test.</strong></p>
+
+<h2 id="where-this-fits-in-a-real-test-strategy">Where This Fits in a Real Test Strategy</h2>
+
+<p>This approach is not a replacement for automation.</p>
+
+<p>A practical model looks like this:</p>
+
+<ol>
+  <li>Use AI browsers early, when automation is still WIP</li>
+  <li>Use them to explore forms, edge cases, UX inconsistencies</li>
+  <li>Convert high-value scenarios into Playwright tests</li>
+  <li>Lock those tests into CI</li>
+</ol>
+
+<p>Think of it as:</p>
+
+<ul>
+  <li>AI for discovery</li>
+  <li>Automation for regression</li>
+</ul>
+
+<h2 id="final-thoughts">Final Thoughts</h2>
+
+<p>AI-controlled browsers won’t replace test frameworks.
+But they can significantly reduce the time between: “the feature is ready” and “we understand how it breaks”.</p>
+
+<p>For form-heavy enterprise applications, that gap is often where the most expensive bugs hide.</p>
+
+<p>This experiment convinced me that AI browsers are not just productivity tools. They are <strong>thinking testers that never get tired</strong>.</p>
+
+<p>If you’re already writing Playwright, this doesn’t compete with your setup.
+It complements it.</p>
+
+<p>And that’s the interesting part.</p>
+
+    </div>
+  </article>
+
+  
+
+  
+
+  
+    
+      
+
+  
+    
+    <br>
+    <hr>
+    <br>
+    <ul class="list-disc pl-8"></ul>
+
+    <!-- Adds related posts to the end of an article -->
+    <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2>
+    <p class="mb-2">Here are some more articles you might like to read next:</p>
+  
+
+  <li class="my-2">
+    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/new-mssql-python-driver-claiming-faster-bcp-a-fact-check/">New mssql-python Driver Claiming Faster BCP? A Fact Check</a>
+  </li>
+
+  
+
+  <li class="my-2">
+    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/agentic-ai-is-decision-making-not-just-tool-calling/">Agentic AI Is Decision-Making, Not Just Tool Calling</a>
+  </li>
+
+  
+
+  <li class="my-2">
+    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/mega-prompt-for-learning-anything-with-feynman-technique/">Mega Prompt for Learning Anything with FEYNMAN Technique</a>
+  </li>
+
+  
+
+  <li class="my-2">
+    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/bureaucracy-is-an-attention-problem-moltbook-hints-at-a-fix/">Bureaucracy Is an Attention Problem. MoltBook Hints at a Fix</a>
+  </li>
+
+  
+
+  <li class="my-2">
+    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/why-we-are-not-living-in-a-simulation/">Why We Are Not Living in a Simulation</a>
+  </li>
+
+
+
+    
+  
+
+  
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+  <footer class="fixed-bottom" role="contentinfo">
+    <div class="container mt-0">
+      © Copyright 2026
+      Utsav
+      
+      Verma. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+      
+      
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <!-- jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@{{version}}/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <!-- Bootsrap & MDB scripts -->
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+<!-- <script src="/assets/js/mdb.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/mdbootstrap@{{version}}/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+<!-- Bootstrap Table -->
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js"></script>
+<script defer src="/assets/js/common.js"></script>
+<script defer src="/assets/js/copy_code.js" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js"></script>
+
+
+
+    
+
+
+    
+
+    
+
+    
+
+
+
+    
+
+    
+
+    
+
+    
+
+    
+  <script src="/assets/js/vanilla-back-to-top.min.js"></script>
+  <script>
+    addBackToTop();
+  </script>
+
+
+    
+  <script type="module" src="/assets/js/search/ninja-keys.min.js"></script>
+  <ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+  <script>
+    let searchTheme = determineComputedTheme();
+    const ninjaKeys = document.querySelector('ninja-keys');
+
+    if (searchTheme === 'dark') {
+      ninjaKeys.classList.add('dark');
+    } else {
+      ninjaKeys.classList.remove('dark');
+    }
+
+    const openSearchModal = () => {
+      // collapse navbarNav if expanded on mobile
+      const $navbarNav = $('#navbarNav');
+      if ($navbarNav.hasClass('show')) {
+        $navbarNav.collapse('hide');
+      }
+      ninjaKeys.open();
+    };
+  </script>
+  <script>
+    // get the ninja-keys element
+    const ninja = document.querySelector('ninja-keys');
+
+    // add the home and posts menu items
+    ninja.data = [{
+        id: "nav-about",
+        title: "about",
+        section: "Navigation",
+        handler: () => {
+          window.location.href = "/";
+        },
+      },{id: "nav-blog",
+              title: "blog",
+              description: "Notes on databases, SQL Server performance, data architecture, and AI.",
+              section: "Navigation",
+              handler: () => {
+                window.location.href = "/blog/";
+              },
+            },{id: "nav-cv",
+              title: "cv",
+              description: "",
+              section: "Navigation",
+              handler: () => {
+                window.location.href = "/cv/";
+              },
+            },{id: "post-new-mssql-python-driver-claiming-faster-bcp-a-fact-check",
+          
+            title: "New mssql-python Driver Claiming Faster BCP? A Fact Check",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-agentic-ai-is-decision-making-not-just-tool-calling",
+          
+            title: "Agentic AI Is Decision-Making, Not Just Tool Calling",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-mega-prompt-for-learning-anything-with-feynman-technique",
+          
+            title: "Mega Prompt for Learning Anything with FEYNMAN Technique",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-bureaucracy-is-an-attention-problem-moltbook-hints-at-a-fix",
+          
+            title: "Bureaucracy Is an Attention Problem. MoltBook Hints at a Fix",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-why-we-are-not-living-in-a-simulation",
+          
+            title: "Why We Are Not Living in a Simulation",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-job-hunting-optimize-your-cv-for-ai",
+          
+            title: "Job hunting? Optimize your CV for AI",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-using-an-ai-browser-as-an-exploratory-testing-assistant-with-a-real-example",
+          
+            title: "Using an AI Browser as an Exploratory Testing Assistant (with a Real Example)...",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-when-cloud-makes-sense-and-when-it-doesn-t-a-friendly-debate",
+          
+            title: "When Cloud Makes Sense—and When It Doesn’t: A Friendly Debate",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-the-spirit-of-the-problem-statement-vs-the-letters-of-it",
+          
+            title: "The Spirit of the Problem Statement vs The Letters of It",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-my-jarvis-moment-ordering-groceries-using-comet-browser",
+          
+            title: "My JARVIS Moment — Ordering Groceries Using Comet Browser",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-implementing-fuzzy-search-in-sql-server-using-new-inbuilt-functions",
+          
+            title: "Implementing Fuzzy Search in SQL Server Using New Inbuilt Functions",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-every-era-shrinked-the-family-ai-era-will-finish-concept-of-family",
+          
+            title: "Every Era Shrinked the Family — AI Era Will Finish Concept of Family...",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-enhancing-sql-server-searches-with-elasticsearch-and-python",
+          
+            title: "Enhancing SQL Server Searches with Elasticsearch and Python",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-contrary-to-popular-belief-ai-will-create-more-it-jobs-not-eliminate-them",
+          
+            title: "Contrary to Popular Belief, AI Will Create More IT Jobs, Not Eliminate Them...",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{id: "post-autocomplete-on-steroids-the-dawn-of-a-new-kind-of-intelligence",
+          
+            title: "Autocomplete on Steroids — The Dawn of a New Kind of Intelligence",
+          
+          description: "",
+          section: "Posts",
+          handler: () => {
+            
+              window.location.href = "";
+            
+          },
+        },{
+            id: 'socials-email',
+            title: 'Send email',
+            section: 'Socials',
+            handler: () => {
+              window.open("mailto:%75%74%73%61%76.%76%65%72%6D%61@%6F%75%74%6C%6F%6F%6B.%69%6E", "_blank");
+            },
+          },{
+            id: 'socials-github',
+            title: 'GitHub',
+            section: 'Socials',
+            handler: () => {
+              window.open("https://github.com/utsavv", "_blank");
+            },
+          },{
+            id: 'socials-linkedin',
+            title: 'LinkedIn',
+            section: 'Socials',
+            handler: () => {
+              window.open("https://www.linkedin.com/in/utsavverma", "_blank");
+            },
+          },{
+            id: 'socials-x',
+            title: 'X',
+            description: 'Twitter',
+            section: 'Socials',
+            handler: () => {
+              window.open("https://twitter.com/utsavverma", "_blank");
+            },
+          },{
+            id: 'socials-stackoverflow',
+            title: 'Stackoverflow',
+            section: 'Socials',
+            handler: () => {
+              window.open("https://stackoverflow.com/users/2941322/uvdata", "_blank");
+            },
+          },{
+            id: 'socials-rss',
+            title: 'RSS Feed',
+            section: 'Socials',
+            handler: () => {
+              window.open("/feed.xml", "_blank");
+            },
+          },];
+  </script>
+  <script src="/assets/js/shortcut-key.js"></script>
+
+
+  </body>
+</html>
