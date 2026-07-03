@@ -7,6 +7,10 @@ excerpt: "Our AI conversations are becoming increasingly valuable, yet they rema
 
 ![KRAI - Knowledge Repository for AI](/assets/images/krai-hero-banner.png)
 
+**TL;DR:** KRAI (Knowledge Repository for AI) is a version-controlled GitHub repository that extracts lasting knowledge from your AI conversations — helping you avoid reinventing the wheel, make better decisions, and retain ownership of your knowledge regardless of which LLM you use.
+
+---
+
 Every day, millions of people use ChatGPT, Claude, Gemini, Codex, and other AI assistants to solve problems, brainstorm ideas, design software, learn new concepts, and make important decisions.
 
 But almost everyone has the same problem.
