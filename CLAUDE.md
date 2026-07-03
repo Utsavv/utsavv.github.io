@@ -24,6 +24,7 @@ There are no test suites or linters configured for the Jekyll content itself. CI
 **Theme:** al-folio (academic Jekyll theme). The site uses Liquid templates, Kramdown markdown, and SCSS.
 
 **Key directories:**
+
 - `_pages/` — top-level pages: `about.md` (serves as homepage at `/`), `blog.md`, `cv.md`
 - `blog/_posts/` — blog posts in markdown, named `YYYY-MM-DD-slug.md`
 - `_layouts/` — Liquid layout templates (inherits from `default.liquid`)
@@ -42,6 +43,7 @@ There are no test suites or linters configured for the Jekyll content itself. CI
 ## Blog Post Conventions
 
 Front matter pattern:
+
 ```yaml
 ---
 layout: post
@@ -56,6 +58,7 @@ Posts go in `blog/_posts/` (not the root `_posts/`). Display order is reverse ch
 ## Agent Instructions
 
 From `AGENT.md`:
+
 1. Always ensure the newest blog post is visible on the home page before the rest of the list.
 2. Display blog posts in reverse chronological order (newest first) wherever they appear on the site.
 
