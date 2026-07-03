@@ -100,7 +100,7 @@ The most valuable part of KRAI is the **Decision Log**.
 
 Conversations often end with a decision.
 
-Unfortunately, weeks later we remember the decision but forget *why* we made it.
+Unfortunately, weeks later we remember the decision but forget _why_ we made it.
 
 KRAI records every important decision using a consistent structure.
 
@@ -141,7 +141,7 @@ Every change is traceable.
 
 Years later, I won't just know what decisions I made.
 
-I'll know *when* I made them, *how* my thinking evolved, and *what* caused the change.
+I'll know _when_ I made them, _how_ my thinking evolved, and _what_ caused the change.
 
 **Git becomes version control for knowledge.**
 
